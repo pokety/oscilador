@@ -1,0 +1,7 @@
+body {
+  background-color: gray;
+  display: flex;
+  flex-direction: row;
+  grid-template-rows: max-content;
+  flex-wrap: wrap;
+}

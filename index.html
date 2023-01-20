@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        background-color: azure;
+        display:flex;
+        align-content:center;
+        flex-wrap: wrap;
+        text-align:center;
+      }
+      
+      </style>
+    <title>Ocilator</title>
+  </head>
+  <body>
+  
+  <div>
+  <select name="tipo" id="tipo" multiple>
+  <option value="sine">sine</option>
+  <option value="square">square</option>
+  <option value="sawtooth">sawtooth</option>
+  <option value="triangle">triangle</option>
+</select>
+<hr>
+
+<input id="ranger" type="range" min="1" max="22000" /></br>
+<hr>
+<label for="ranger">440</label></br>
+
+<hr>
+<input type="button" value="ON" />
+</div>
+
+<canvas width="200" height="100"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.2/cash.min.js"></script>
+<script>
+const ctx = new AudioContext();
+const oscillator = ctx.createOscillator();
+const analiser=ctx.createAnalyser()
+
+
+oscillator.type = 'sine'; //types:sine,square,sawtooth,triangle
+oscillator.connect(analiser);
+
+const fbc_array=new Uint8Array(analiser.frequencyBinCount)
+
+analiser.connect(ctx.destination)
+
+oscillator.frequency.value = 3000;
+
+oscillator.start();
+ctx.suspend();
+
+const range = document.querySelector('input[type=range]');
+const btn = document.querySelector('input[type=button]');
+const label = document.querySelector('label');
+const tipos = document.querySelector('select');
+
+/////
+
+/////
+
+var state = true;
+
+tipos.addEventListener('change', () => {
+  oscillator.type = tipos.value;
+});
+
+range.addEventListener('input', () => {
+  oscillator.frequency.value = range.value;
+  label.textContent = range.value;
+  
+});
+
+
+btn.addEventListener('click', () => {
+  /////
+  
+  /////
+  if (state == false) {
+    ctx.suspend();
+    btn.value = 'ON';
+    state = true;
+  } else {
+    ctx.resume();
+    btn.value = 'OFF';
+    state = false;
+    
+  }
+});
+
+
+////////chart
+
+const ctxC = $('canvas');
+var labelss = Array.from(Array(1024).keys());
+var dados = []
+
+const data1 = {
+  labels: Array.from(labelss,x=>Math.floor( x*21.484375)),
+  datasets: [
+    {
+      label: 'preços',
+      data: dados,
+      fill: true,
+      borderColor: 'rgb(0.0.255)',
+      tension: 0.1,
+    },
+  ],
+};
+
+const config = {
+  type: 'bar',
+  data: data1,
+  options: {
+    scales: {
+      y: { min: 0, max: 300 },
+    },
+  },
+};
+const stack = new Chart(ctxC, config);
+
+setInterval(() => {
+
+analiser.getByteFrequencyData(fbc_array)
+
+
+  // var segredos = [];
+  // var tamanhoArray = 100;
+
+  // for (var contador = 0; contador < tamanhoArray; contador++) {
+  //   var itemArray = getRandom10(0, 100);
+
+  //   segredos[contador] = itemArray;
+  // }
+
+  data1.datasets[0].data = fbc_array;
+
+  stack.update();
+  
+},50 );
+</script>
+  </body>
+</html>
