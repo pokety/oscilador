@@ -45,9 +45,15 @@ const ctx = new AudioContext();
 const oscillator = ctx.createOscillator();
 const analiser=ctx.createAnalyser()
 
+navigator.mediaDevices.getUserMedia({audio:true,video:false})
+.then((stream)=>{
+  const fonte=ctx.createMediaStreamSource(stream)
+  fonte.connect(analiser)
+
+})
 
 oscillator.type = 'sine'; //types:sine,square,sawtooth,triangle
-oscillator.connect(analiser);
+// oscillator.connect(analiser);
 
 const fbc_array=new Uint8Array(analiser.frequencyBinCount)
 
@@ -110,7 +116,7 @@ const data1 = {
       label: 'preços',
       data: dados,
       fill: true,
-      borderColor: 'rgb(0.0.255)',
+      borderColor: '',
       tension: 0.1,
     },
   ],
@@ -119,7 +125,9 @@ const data1 = {
 const config = {
   type: 'bar',
   data: data1,
-  options: {
+  options: 
+  {
+    animation:false,
     scales: {
       y: { min: 0, max: 300 },
     },
