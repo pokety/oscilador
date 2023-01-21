@@ -12,7 +12,18 @@
         flex-wrap: wrap;
         text-align:center;
       }
-      
+      select{
+        display:none
+      }
+      hr{
+        display:none
+      }
+      #ranger{
+        display:none
+      }
+      label{
+        display:none
+      }
       </style>
     <title>Ocilator</title>
   </head>
@@ -34,46 +45,41 @@
 <hr>
 <input type="button" value="ON" />
 </div>
-
-<canvas width="200" height="100"></canvas>
+<canvas height="40vh" width="80vw"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cash/8.1.2/cash.min.js"></script>
 <script>
+
+
 const ctx = new AudioContext();
 const oscillator = ctx.createOscillator();
 const analiser=ctx.createAnalyser()
+const range = document.querySelector('input[type=range]');
+const btn = document.querySelector('input[type=button]');
+const label = document.querySelector('label');
+const tipos = document.querySelector('select');
+const ctxC = $('canvas');
 
 navigator.mediaDevices.getUserMedia({audio:true,video:false})
 .then((stream)=>{
   const fonte=ctx.createMediaStreamSource(stream)
   fonte.connect(analiser)
-
 })
+
+const fbc_array=new Uint8Array(analiser.frequencyBinCount)
+analiser.connect(ctx.destination)
 
 oscillator.type = 'sine'; //types:sine,square,sawtooth,triangle
 // oscillator.connect(analiser);
-
-const fbc_array=new Uint8Array(analiser.frequencyBinCount)
-
-analiser.connect(ctx.destination)
-
 oscillator.frequency.value = 3000;
-
 oscillator.start();
 ctx.suspend();
 
-const range = document.querySelector('input[type=range]');
-const btn = document.querySelector('input[type=button]');
-const label = document.querySelector('label');
-const tipos = document.querySelector('select');
-
-/////
-
-/////
-
 var state = true;
+
+///HANDLES
 
 tipos.addEventListener('change', () => {
   oscillator.type = tipos.value;
@@ -85,11 +91,7 @@ range.addEventListener('input', () => {
   
 });
 
-
 btn.addEventListener('click', () => {
-  /////
-  
-  /////
   if (state == false) {
     ctx.suspend();
     btn.value = 'ON';
@@ -97,26 +99,20 @@ btn.addEventListener('click', () => {
   } else {
     ctx.resume();
     btn.value = 'OFF';
-    state = false;
-    
+    state = false; 
   }
 });
-
-
 ////////chart
-
-const ctxC = $('canvas');
 var labelss = Array.from(Array(1024).keys());
-var dados = []
 
 const data1 = {
   labels: Array.from(labelss,x=>Math.floor( x*21.484375)),
   datasets: [
     {
-      label: 'preços',
-      data: dados,
-      fill: true,
-      borderColor: '',
+      label: ['FREQUENCIA'],
+      data: [],
+      fill: false,
+      backgroundColor:"#36A2EB", //red #CC2929  , azul #36A2EB ,rosa #FF6384,
       tension: 0.1,
     },
   ],
@@ -126,33 +122,20 @@ const config = {
   type: 'bar',
   data: data1,
   options: 
-  {
-    animation:false,
-    scales: {
-      y: { min: 0, max: 300 },
+    {
+      animation:false,
+      scales: {
+        y: { min: 0, max: 300 },
+      },
     },
-  },
 };
+
 const stack = new Chart(ctxC, config);
 
 setInterval(() => {
-
-analiser.getByteFrequencyData(fbc_array)
-
-
-  // var segredos = [];
-  // var tamanhoArray = 100;
-
-  // for (var contador = 0; contador < tamanhoArray; contador++) {
-  //   var itemArray = getRandom10(0, 100);
-
-  //   segredos[contador] = itemArray;
-  // }
-
+  analiser.getByteFrequencyData(fbc_array)
   data1.datasets[0].data = fbc_array;
-
-  stack.update();
-  
+  stack.update();  
 },50 );
 </script>
   </body>
