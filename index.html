@@ -62,7 +62,12 @@ const label = document.querySelector('label');
 const tipos = document.querySelector('select');
 const ctxC = $('canvas');
 
-navigator.mediaDevices.getUserMedia({audio:true,video:false})
+navigator.mediaDevices.getUserMedia({audio:{
+  echoCancellation:false,
+  autoGainControl:false,
+  noiseSuppression:false,
+  latency:0
+}})
 .then((stream)=>{
   const fonte=ctx.createMediaStreamSource(stream)
   fonte.connect(analiser)
